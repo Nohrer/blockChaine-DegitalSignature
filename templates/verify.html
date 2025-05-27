@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verify Document - Digital Signature Blockchain</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { background-color: #f8f9fa; color: #212529; }
+        .navbar { background-color: #212529; }
+        .container { max-width: 1200px; margin-top: 20px; }
+        h1 { color: #007BFF; }
+        .btn-primary { background-color: #007BFF; border-color: #007BFF; }
+        .btn-primary:hover { background-color: #0056b3; border-color: #0056b3; }
+        .table { background-color: #fff; }
+        .table thead { background-color: #212529; color: #fff; }
+        .flash-message { background-color: #d4edda; color: #155724; padding: 15px; margin-bottom: 20px; border-radius: 5px; border: 1px solid #c3e6cb; }
+        .flash-error { background-color: #f8d7da; color: #721c24; padding: 15px; margin-bottom: 20px; border-radius: 5px; border: 1px solid #f5c6cb; }
+        .card { border-color: #007BFF; }
+        .card-header { background-color: #007BFF; color: #fff; }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">Digital Signature Blockchain</a>
+            <div class="navbar-nav ms-auto">
+                <a class="nav-link" href="{{ url_for('signing') }}">Sign Document</a>
+                <a class="nav-link" href="{{ url_for('verify') }}">Verify Document</a>
+                <a class="nav-link" href="{{ url_for('signout') }}">Sign Out</a>
+            </div>
+        </div>
+    </nav>
+    <div class="container">
+        <h1 class="my-4">Verify Signed Document</h1>
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="{{ 'flash-message' if category == 'message' else 'flash-error' }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        {% if verification_result %}
+            <div class="card mb-4">
+                <div class="card-header">Verification Result</div>
+                <div class="card-body">
+                    <p><strong>Status:</strong> {{ verification_result.status }}</p>
+                    {% if verification_result.status == 'Valid' %}
+                        <p><strong>Filename:</strong> {{ verification_result.filename }}</p>
+                        <p><strong>Signed By:</strong> {{ verification_result.signed_by }}</p>
+                        <p><strong>For Who:</strong> {{ verification_result.for_who }}</p>
+                        <p><strong>Signature Date:</strong> {{ verification_result.timestamp }}</p>
+                    {% elif verification_result.message %}
+                        <p>{{ verification_result.message }}</p>
+                    {% endif %}
+                </div>
+            </div>
+        {% endif %}
+        <div class="card mb-4">
+            <div class="card-header">Upload Document to Verify</div>
+            <div class="card-body">
+                <form action="{{ url_for('verify') }}" method="POST" enctype="multipart/form-data" id="verifyForm">
+                    <div class="mb-3">
+                        <label for="file" class="form-label">Document File (PDF or DOCX, max 5MB):</label>
+                        <input type="file" id="file" name="file" class="form-control" accept=".pdf,.docx" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Verify Document</button>
+                </form>
+            </div>
+        </div>
+        <h2 class="my-4">Signed Documents</h2>
+        <div class="table-responsive">
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>Block Index</th>
+                        <th>Filename</th>
+                        <th>Document Hash</th>
+                        <th>Signed By</th>
+                        <th>For Who</th>
+                        <th>Timestamp</th>
+                        <th>Signature</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for post in posts %}
+                    <tr>
+                        <td>{{ post.index }}</td>
+                        <td><a href="{{ url_for('download_file', filename=post.filename) }}">{{ post.filename }}</a></td>
+                        <td>{{ post.document_hash }}</td>
+                        <td>{{ post.signed_by }}</td>
+                        <td>{{ post.for_who }}</td>
+                        <td>{{ post.timestamp }}</td>
+                        <td>{{ post.signature }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.getElementById('verifyForm').addEventListener('submit', function(e) {
+            const fileInput = document.getElementById('file');
+            const maxSize = 5 * 1024 * 1024; // 5MB
+            if (fileInput.files[0].size > maxSize) {
+                e.preventDefault();
+                alert('File size exceeds 5MB limit');
+            }
+        });
+    </script>
+</body>
+</html>
