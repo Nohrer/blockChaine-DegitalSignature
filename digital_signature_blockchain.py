@@ -18,7 +18,7 @@ logger = logging.getLogger(__name__)
 
 # Initialize Flask app
 app = Flask(__name__)
-app.secret_key = 'motDePasseDyall3bar'  # Change in production
+app.secret_key = 'motDePasseDyall3bar'  
 app.config['UPLOAD_FOLDER'] = 'uploads'
 app.config['ALLOWED_EXTENSIONS'] = {'pdf', 'docx'}
 app.config['MAX_CONTENT_LENGTH'] = 5 * 1024 * 1024  # 5MB max file size
@@ -28,7 +28,7 @@ app.config['SESSION_COOKIE_SECURE'] = True  # Use secure cookies in production
 if not os.path.exists(app.config['UPLOAD_FOLDER']):
     os.makedirs(app.config['UPLOAD_FOLDER'])
 
-# In-memory user store (use a database in production)
+# In-memory user store 
 users = {}  # {username: {"password": str, "public_key": bytes}}
 
 class Block:
